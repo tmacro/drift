@@ -1,0 +1,6 @@
+{
+	"APP_NAME" : "Drift",
+	"VERSION" : "0.0.1",
+	"ETCD_HOST" : "192.168.1.7",
+	"ETCD_ROOT" : "/drift"
+}
