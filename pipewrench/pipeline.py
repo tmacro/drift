@@ -1,5 +1,5 @@
 import logging
-import fittings
+#import fittings
 import collections
 moduleLogger = logging.getLogger(__name__)
 
@@ -22,23 +22,23 @@ class Filter(object):
 	def Execute(self, msg):
 		return msg
 
-class Router(object):
-	def __init__(self, pipeline = None):
-		self.logger = moduleLogger.getChild(self.__class__.__name__)
-		if not pipeline:
-			self.pipeline = fittings.PipeFitting()
-		else:
-			self.pipeline = pipeline
-
-		self.Extend = self.pipeline.Register
-		self.Route = self.pipeline.Invoke
-		self.Setup()
-
-	def Execute(self, msg):
-		return self.Route(msg)
-
-	def Setup(self):
-		pass
+# class Router(object):
+# 	def __init__(self, pipeline = None):
+# 		self.logger = moduleLogger.getChild(self.__class__.__name__)
+# 		if not pipeline:
+# 			self.pipeline = fittings.PipeFitting()
+# 		else:
+# 			self.pipeline = pipeline
+#
+# 		self.Extend = self.pipeline.Register
+# 		self.Route = self.pipeline.Invoke
+# 		self.Setup()
+#
+# 	def Execute(self, msg):
+# 		return self.Route(msg)
+#
+# 	def Setup(self):
+# 		pass
 
 class Message(object):
 	def __init__(self, **kwargs):
@@ -49,4 +49,4 @@ class Message(object):
 			setattr(self, key, value)
 
 	def __repr__(self):
-		return 'SP: %s - Retry: %s - Error: %s'%(self.StopProcessing, self.Retry, self.Error)
+		return 'SP: %s - Retry: %s - Error: %s - Data: %s'%(self.StopProcessing, self.Retry, self.Error, str(self.__))

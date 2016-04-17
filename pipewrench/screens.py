@@ -1,4 +1,4 @@
-import errors
+import pipewrench.errors as errors
 import time
 import logging
 
@@ -28,6 +28,7 @@ class StopProcessingScreen(Screen):
 
 		except errors.StopProcessingError as e:
 			self.logger.debug('Stop Processing Caught: %s'%str(e))
+			self.logger.exception(e)
 			msg.StopProcessing = True
 			msg.error = str(e)
 			return msg
