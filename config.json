@@ -1,6 +1,16 @@
 {
 	"APP_NAME" : "Drift",
-	"VERSION" : "0.0.1",
-	"ETCD_HOST" : "192.168.1.7",
-	"ETCD_ROOT" : "/drift"
+	"VERSION" : "0.1.0",
+	"CLUSTER_MODE" : true,
+	"ETCD_HOST" : "192.168.1.8",
+	"ETCD_ROOT" : "/drift",
+	"INPUT_DIR" : "/media/input",
+	"OUTPUT_DIR": "/media/output",
+	"POLL_TIME" : 300,
+	"CODEC_VIDEO" : "h264",
+	"CODEC_AUDIO" : "aac",
+	"WORKERS" : 3,
+	"FFMPEG_PRESET" : "slow",
+	"FFMPEG_CRF" : 18,
+	"AUDIO_BR" : "160k"
 }
