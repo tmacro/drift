@@ -38,8 +38,9 @@ def loadConfig(file = 'config.json'):
 	with open(file) as configFile:
 		loadedConfig = json.load(configFile)
 
-	config = {**BUILT_IN_DEFAULTS, **loadedConfig} # Merge loaded config with the defaults
-
+	# config = {**BUILT_IN_DEFAULTS, **loadedConfig} # Merge loaded config with the defaults
+	config = BUILT_IN_DEFAULTS.copy()
+	config.update(loadedConfig)
 	config['LOGLVL'] = utils.parseLogLevel(config['LOGLVL']) # Parse the loglvl
 	if config['LOGLVL'] <= 10:
 		config['DEBUGGING'] = True
