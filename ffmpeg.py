@@ -3,6 +3,7 @@ import shlex
 import subprocess
 import config
 import logging
+import jobs
 moduleLogger = logging.getLogger('ffmpeg')
 
 def buildFFmpegCommand(encodeVideo = True, encodeAudio = True):
@@ -33,16 +34,25 @@ def convertFile(input_path, output_path, encodeVideo = True, encodeAudio = True)
 	args = shlex.split(rawCommand)
 	moduleLogger.debug('converting with %s'%rawCommand)
 	proc = subprocess.Popen(args, stderr=subprocess.PIPE)
+	tailer = jobs.ProcTailer(proc)
+	tailer.start()
 	proc.wait()
+	tailer.join()
 	return proc
 
 def probeFile(file_path):
 	# Build and execute ffprobe command
-	command = '''/usr/bin/sh -c "ffprobe -show_streams %s | grep -w 'codec_name\|codec_type'"'''%shlex.quote(file_path)
-	proc = subprocess.run(shlex.split(command), stdout=subprocess.PIPE)
+	command = "/bin/sh probeFile.sh %s"%shlex.quote(file_path)
+	codecs = {'video':'unknown', 'audio': 'unknown'}
+	try:
+		proc = subprocess.check_output(shlex.split(command))
+	except subprocess.CalledProcessError as e:
+		moduleLogger.exception(e)
+		moduleLogger.debug(e.output)
+		moduleLogger.error('Error probing %s for codec info, assuming it needs reencoding'%file_path)
+		return codecs
 	# Cleanup output for processing
-	streams = [ x.strip() for x in proc.stdout.decode().strip().split('\n') ]
-	codecs = {}
+	streams = [ x.strip() for x in proc.decode().strip().split('\n') ]
 	for x in range(len(streams)):
 		key, value = streams[x].split('=')
 		if key == 'codec_type':

@@ -15,10 +15,10 @@ push:
 	docker push $(NS)/$(REPO):$(VERSION)
 
 shell:
-	docker run --rm --name $(NAME)-$(INSTANCE) -i -t $(PORTS) $(VOLUMES) $(LINKS) $(ENV) $(EXTRA) $(NS)/$(REPO):$(VERSION) /bin/sh
+	docker run --rm --name $(NAME)-$(INSTANCE) -i -t $(PORTS) $(VOLUMES) $(LINKS) $(ENV) $(EXTRA) $(SHELL_ARGS) $(NS)/$(REPO):$(VERSION) /bin/sh
 
 run:
-	docker run --rm --name $(NAME)-$(INSTANCE) $(PORTS) $(VOLUMES) $(LINKS) $(ENV) $(EXTRA) $(NS)/$(REPO):$(VERSION)
+	docker run --rm -i -t --name $(NAME)-$(INSTANCE) $(PORTS) $(VOLUMES) $(LINKS) $(ENV) $(EXTRA) $(NS)/$(REPO):$(VERSION)
 
 start:
 	docker run -d --name $(NAME)-$(INSTANCE) $(PORTS) $(VOLUMES) $(ENV) $(EXTRA) $(NS)/$(REPO):$(VERSION)

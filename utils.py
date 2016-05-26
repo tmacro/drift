@@ -34,7 +34,7 @@ def sanitizePathsForEtcd(file_path):
 	return step3
 
 def stripAllSpecial(text):
-	text = text.lower()
+	text = str(text).lower()
 	stripped = ''
 	for letter in text:
 		if letter in ascii_lowercase:

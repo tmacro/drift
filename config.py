@@ -2,6 +2,7 @@ import json
 import sys
 import utils
 import logging
+import os
 
 BUILT_IN_DEFAULTS = { # These can be overridden in the config file. They are just here so that you don't HAVE to define them and the module still works
 			"VERSION": "DEV_BUILD",
@@ -41,10 +42,10 @@ def loadConfig(file = 'config.json'):
 	# config = {**BUILT_IN_DEFAULTS, **loadedConfig} # Merge loaded config with the defaults
 	config = BUILT_IN_DEFAULTS.copy()
 	config.update(loadedConfig)
+	config.update(loadFromEnv(config))
 	config['LOGLVL'] = utils.parseLogLevel(config['LOGLVL']) # Parse the loglvl
 	if config['LOGLVL'] <= 10:
 		config['DEBUGGING'] = True
-
 	configModule = sys.modules[__name__]	# This is pretty hacky but it works...
 
 	# Set the config values to their respective keys
@@ -52,6 +53,15 @@ def loadConfig(file = 'config.json'):
 		configModule.__dict__[key] = value	# Dirty Hacks
 
 	return config # Return the config for good measure
+
+def loadFromEnv(config):
+	newConfig = config.copy()
+	for key, value in config.items():
+		env = os.getenv(key, None)
+		if env:
+			newConfig[key] = env
+
+	return newConfig
 
 CONFIG = loadConfig()
 setupLogging()

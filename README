@@ -1,0 +1,22 @@
+drift: the cluster aware automatic media re-encoder.
+Drift monitors a directory for file to convert, converts them to a specified
+format, copies the converted file to a output directory, and finallly removing
+the original file.
+
+Multiple instances of drift can be run, either on the same machine, or on a
+networked cluster of machines. drift instances coordinate their efforts using etcd
+for distributed locking.
+
+Clustering can be enabled by setting CLUSTER_MODE to true in config.json
+An etcd host (required) and (optionaly) port can be specified in config.json as
+	ETCD_HOST
+	ETCD_PORT
+The root directory used for locks is specified using ETCD_ROOT
+
+CODEC_VIDEO and CODEC_AUDIO specify the codecs to reencode to.
+
+WORKERS defines the number of conversions to run per drift instance
+
+FFMPEG_PRESET and FFMPEG_CRF define video encoding options
+
+AUDIO_BR defines the adio bitrate, end number in 'k' for kilohertz

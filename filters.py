@@ -8,6 +8,7 @@ import shutil
 from ffmpeg import probeFile, convertFile
 import os
 import config
+import pathlib
 # filters in Order
 # take lock
 # create temp directory
@@ -19,7 +20,6 @@ import config
 # copy to destination
 # remove original file
 # release lock
-
 
 class TakeLock(Filter):
 	def Execute(self, msg):
@@ -43,7 +43,7 @@ class CreateTempDirectory(Filter):
 class CopyToDisk(Filter):
 	def Execute(self, msg):
 		self.logger.debug('Copying %s to %s'%(msg.origin_path, msg.tempDir.name))
-		msg.tempInput = shutil.copy(msg.origin_path, msg.tempDir.name)
+		msg.tempInput = shutil.copy(str(msg.origin_path), msg.tempDir.name + '/input%s'%msg.origin_path.suffix)
 		self.logger.debug(' Finished Copying %s to %s'%(msg.origin_path, msg.tempDir.name))
 		return msg
 
@@ -61,12 +61,12 @@ class SetupEncoding(Filter):
 		msg.encodeVideo = True
 		msg.encodeAudio = True
 
-		if msg.originCodecVideo == config.CODEC_VIDEO:
+		if msg.originCodecVideo in config.ACCEPTABLE_CODECS:
 			msg.encodeVideo = False
 
 
 
-		if msg.originCodecAudio == config.CODEC_AUDIO:
+		if msg.originCodecAudio in config.ACCEPTABLE_CODECS:
 			msg.encodeAudio = False
 		self.logger.debug('Setup encoding - video: %s audio: %s for %s'%(msg.encodeVideo, msg.encodeAudio, msg.origin_path))
 		return msg
@@ -74,32 +74,46 @@ class SetupEncoding(Filter):
 class EncodeVideo(Filter):
 	def Execute(self, msg):
 		self.logger.debug('Coverting %s'%msg.origin_path)
-		msg.tempOutput = msg.tempDir.name + '/output.mkv'
+		msg.tempOutput = msg.tempDir.name + '/output.' + config.FFMPEG_CONTAINER
 		msg.return_code = convertFile(msg.tempInput, msg.tempOutput, msg.encodeVideo, msg.encodeAudio)
 		self.logger.debug('Done Converting %s'%msg.origin_path)
 		return msg
 
+class CheckForOutput(Filter):
+	def Execute(self, msg):
+		self.logger.debug('Checking for encoded video...')
+		if not os.path.isfile(msg.tempOutput):
+			raise StopProcessingError('Encoded video not found for %s'%msg.origin_path)
+
+		return msg
+
 class DetermineDestination(Filter):
 	def Execute(self, msg):
-		base_path = msg.origin_path.replace(config.INPUT_DIR, '')
-		msg.outputPath = config.OUTPUT_DIR + base_path
+		base_path = msg.origin_path.relative_to(config.INPUT_DIR)
+		msg.outputPath = pathlib.Path(config.OUTPUT_DIR).joinpath(base_path).with_suffix('.' + config.FFMPEG_CONTAINER)
+		# base_path = '/' + msg.origin_path.stem  + '.'
+		# msg.outputPath = pathlib.Path(config.OUTPUT_DIR  + base_path + config.FFMPEG_CONTAINER)
 		self.logger.debug('%s will be copied to %s'%(msg.origin_path, msg.outputPath))
 		return msg
+
 
 class CreateDestDirectories(Filter):
 	def Execute(self, msg):
 		self.logger.debug('Creating dest directories for %s'%msg.origin_path)
+		create_path = os.path.dirname(str(msg.outputPath.as_posix()))
+		self.logger.debug('Creating directory: %s'%create_path)
 		try:
-			os.makedirs(os.path.dirname(msg.outputPath))
-		except FileExistsError:
-			pass
+			os.makedirs(create_path, exist_ok=True)
+		except FileExistsError as e:
+			self.logger.debug('Creating path threw an error :(')
+			self.logger.exception(e)
 
 		return msg
 
 class CopyToDestination(Filter):
 	def Execute(self, msg):
 		self.logger.debug('Copying %s to destination'%msg.origin_path)
-		shutil.copyfile(msg.tempOutput, msg.outputPath)
+		shutil.copyfile(msg.tempOutput, str(msg.outputPath))
 		self.logger.debug('Done copying %s'%msg.origin_path)
 		return msg
 
@@ -112,7 +126,7 @@ class CleanupTempDir(Filter):
 class RemoveOriginal(Filter):
 	def Execute(self, msg):
 		self.logger.debug('Deleting original file - %s'%msg.origin_path)
-		os.remove(msg.origin_path)
+		os.remove(str(msg.origin_path))
 		return msg
 
 class ReleaseLock(Filter):

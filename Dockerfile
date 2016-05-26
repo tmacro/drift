@@ -1,8 +1,8 @@
 FROM gliderlabs/alpine:latest
 
-RUN apk-install ffmpeg python3
+RUN apk-install ffmpeg python3 grep
 
-RUN mkdir /app
+RUN mkdir /app /media/input /media/output
 ADD . /app
 WORKDIR /app
 
