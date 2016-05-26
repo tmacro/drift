@@ -18,6 +18,7 @@ class ExceptionScreen(Screen):
 			msg = self.target(msg)
 		except Exception as e:
 			self.logger.error('Caught Exception: %s'%str(e))
+			self.logger.exception(e)
 			msg.StopProcessing = True
 		return msg
 
