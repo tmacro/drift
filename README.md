@@ -2,7 +2,7 @@
 
 **Drift**: the cluster aware media re-encoding daemon
 
-Drift monitors a shared directory for files to convert, converts them to the specified format, copies the converted file to an output directory, and finally deletes the original file. Multiple instances of drift can be start, either on the same machine or on a networked cluster of machines. Drift instances coordinate their efforts using etcd for distributed locking, and configuration.
+Drift monitors a shared directory for files to convert, converts them to the specified format, copies the converted file to an output directory, and finally deletes the original file. Multiple instances of drift can be started, either on the same machine or on a networked cluster of machines. Drift instances coordinate their efforts using etcd for distributed locking, and configuration.
 
 ## Prereqs
 
@@ -15,6 +15,10 @@ Simply clone the repo and install the dependencies.
 git clone https://github.com/tmacro/drift
 cd drift
 pip -r requirements.txt
+```
+or pull the docker image
+```
+docker pull tmacro/drift
 ```
 
 ## Configuration
