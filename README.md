@@ -1,6 +1,6 @@
 # Drift 
 
-**Drift**: the cluster aware media re-encoding daemon
+**Drift**: The cluster aware media re-encoding daemon
 
 Drift monitors a shared directory for files to convert, converts them to the specified format, copies the converted file to an output directory, and finally deletes the original file. Multiple instances of drift can be started, either on the same machine or on a networked cluster of machines. Drift instances coordinate their efforts using etcd for distributed locking, and configuration.
 
